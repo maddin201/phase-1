@@ -1,93 +1,111 @@
+function addItem () {
 
-        todo_items = 0;
-window.onload = function(){
-   document.forms [0].elements[0].focus();	
-  var todo = document.getElementById("todo");
-  var task_form = todo.querySelector("#task_form");
-  task_form.onsubmit = function(e){
-    var task_input = e.target.querySelector("input[name='task']");
-    var task_name;
-    if(task_input.dataset.edit == "true"){
-      var task_item_id = task_input.dataset.id;
-      
-      task_name = todo.querySelector(".tasks #item" + task_item_id + " .task-name");
-      
-      task_name.textContent = task_input.value;
-      task_input.dataset.edit = false;
-      task_input.dataset.id = "";
-    }else{
+//get class
+var priority_class = $('.choose-priorety')
+.clone()
+.removeClass('choose-priorety')
+.attr('class');
 
-      var todo_value = task_input.value;
+// append to the list
+$(".tasks").append('<li class="' + priority_class + '">
+<input type= "checkbox" class="toggle" /><span>' + $("#todo-input").val() + '</span> <small>
+<a href="#edit">Edit</a> &bull; <a href="#delete">Delete</a></small></li>');        
 
-      var item = document.createElement("tr");
-      item.id = "item"+todo_items;
-     //   alert( item.id);
-      var task_check = document.createElement("td");
-      task_check.setAttribute("class", "check fa fa-square");
-      task_check.dataset.id = todo_items;
-	  //alert( task_check.dataset.id);
-      task_check.dataset.checked = false;
-      task_check.onclick = function(e){
-        var task_item_id = e.target.dataset.id;
-        var task_name = todo.querySelector(".tasks #item" + task_item_id + " .task-name");
-	
-        if(e.target.dataset.checked == "true"){
-          e.target.setAttribute("class", "check fa fa-square");
-          task_name.style.textDecoration = "";
-          e.target.dataset.checked = false;
-        }else{
-          e.target.setAttribute("class", "check fa fa-check-square");
-          task_name.style.textDecoration = "line-through";
-          e.target.dataset.checked = true;
-        }
-      };
-      item.appendChild(task_check);
+// clear the text
+$("#todo-input").val("");
 
-      task_name = document.createElement("td");
-      task_name.setAttribute("class","task-name");
-      task_name.textContent = todo_value;
-      item.appendChild(task_name);
+}
 
-      var edit_delete_panel = document.createElement("td");
 
-      var edit_link = document.createElement("a");
-      edit_link.href = "#";
-      edit_link.textContent = "edit";
-      edit_link.dataset.id = todo_items;
-      edit_link.onclick = function(e){
-        var task_item_id = e.target.dataset.id;
-        var task_name = todo.querySelector(".tasks #item" + task_item_id + " .task-name");
-        var task_input = todo.querySelector("#task_form input[name='task']");
-        task_input.value = task_name.textContent;
-        task_input.dataset.edit = true;
-        task_input.focus();
-        task_input.dataset.id = task_item_id;
+   ///// Check all boxes 
 
-        return false;
-      };
-      edit_delete_panel.appendChild(edit_link);
+  $("#toggle-all").click(function () {
+     $('input:checkbox').not(this).prop('checked', this.checked);
+ });
 
-      edit_delete_panel.appendChild(document.createTextNode(" | "));
 
-      var delete_link = document.createElement("a");
-      delete_link.href = "#";
-      delete_link.textContent = "delete";
-      delete_link.dataset.id = todo_items;
-      delete_link.onclick = function(e){
-        var task_item_id = e.target.dataset.id;
-        var task_item = todo.querySelector(".tasks #item" + task_item_id);
-        task_item.parentNode.removeChild(task_item);
-        return false;
-      };
-      edit_delete_panel.appendChild(delete_link);
+   //strike-through text when box checked, unstrike when unchecked. 
 
-      item.appendChild(edit_delete_panel);
 
-      var tasks = todo.querySelector(".tasks");
-      tasks.appendChild(item);
+  $(document).on("click", '.toggle', function() {
+    if ($(this).closest("li").find("span").css('textDecoration') === 'line-through') {
+          $(this).closest("li").find("span").css('textDecoration', 'none');
+    } else {
+      $(this).closest("li").find("span").toggleClass('stroked');
 
-      todo_items++;
     }
+  }); 
+
+
+/// add task when enter key is pressed
+
+  $("#todo").keydown(function (e) {
+    
+    if (e.which == 13)
+      addItem();
+  });
+
+
+  // on clicking the add button
+$('#add-task').on('click',function(e) {
+    e.preventDefault();
+    addItem();
+})
+
+
+  // delegate the events to dynamically generated elements
+  // for the edit button
+  $(document).on("click", 'a[href="#edit"]', function () {
+    
+    // make the span editable and focus it
+    $(this).closest("li").find("span").prop("contenteditable", true).focus();
     return false;
-    }
-	}
+  });
+
+
+  /// Delete all checked boxes 
+
+  $(document).on("click", '#clearCompleted', function() {
+  $(".toggle:checked").each(function () {
+    $(this).closest("li").remove();
+  });
+});  
+
+
+
+  $(document).ready(function() {
+
+  var $addForm = $('#todo-form');
+  var $taskInput = $addForm.find('#todo-input');
+  var $todoList = $('.tasks-parent li');
+  var fadeSpeed = 300;
+
+  })
+
+
+
+        //priorities btn display list of urgency with 3 buttons
+
+  var $prioritiesContainer = $('.priorities');
+  var $prioritiesList = $prioritiesContainer.find('.priorities-list');
+  var $choosePriorityBtn = $prioritiesContainer.find('.choose-priorety');
+  var $prioritiesBtns = $prioritiesContainer.find('.priority button');
+
+  $choosePriorityBtn.on('click',function() {
+    $prioritiesList.toggle();
+  });
+  $prioritiesBtns.on('click',function() {
+    $choosePriorityBtn.removeClass('low medium high').addClass($(this).attr('class'));
+    $prioritiesList.hide();
+  });
+
+
+  // for the delete button
+  $(document).on("click", 'a[href="#delete"]', function () {
+    // remove the list item
+    $(this).closest("li").fadeOut(function () {
+      $(this).remove();
+    });
+    return false;
+  });
+ 
